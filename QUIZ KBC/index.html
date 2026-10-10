@@ -1,0 +1,1819 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kaun Banega Crorepati - The Hot Seat</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --gold-primary: #f5c518;
+            --gold-light: #ffe57f;
+            --gold-dark: #b8860b;
+            --blue-darkest: #030718;
+            --blue-deep: #071330;
+            --blue-mid: #0d255c;
+            --blue-light: #19438e;
+            --cyan-glow: #00d2ff;
+            --correct-green: #00e676;
+            --correct-border: #00b34d;
+            --wrong-red: #ff334b;
+            --locked-yellow: #ffb703;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: radial-gradient(circle at 50% 30%, #102a6b 0%, #081438 50%, #020612 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        /* Ambient Background Stage Lighting */
+        .stage-glow {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: 
+                radial-gradient(circle at 50% 10%, rgba(0, 210, 255, 0.15) 0%, transparent 60%),
+                radial-gradient(circle at 80% 80%, rgba(138, 43, 226, 0.12) 0%, transparent 50%),
+                radial-gradient(circle at 20% 80%, rgba(245, 197, 24, 0.08) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Top Header Bar */
+        header {
+            position: relative;
+            z-index: 10;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 24px;
+            background: rgba(3, 7, 24, 0.85);
+            border-bottom: 2px solid var(--gold-dark);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.6);
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            cursor: pointer;
+        }
+
+        .chakra-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: radial-gradient(circle, #ffe066 10%, #d4af37 40%, #071330 75%);
+            border: 2px solid var(--gold-light);
+            box-shadow: 0 0 15px var(--gold-primary);
+            position: relative;
+            animation: spinChakra 30s linear infinite;
+        }
+
+        @keyframes spinChakra {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .chakra-icon::before {
+            content: '';
+            position: absolute;
+            inset: 6px;
+            border: 2px dashed rgba(255, 255, 255, 0.8);
+            border-radius: 50%;
+        }
+
+        .game-title {
+            font-family: 'Cinzel', serif;
+            font-size: 20px;
+            font-weight: 900;
+            letter-spacing: 2px;
+            background: linear-gradient(180deg, #fff 0%, var(--gold-light) 50%, var(--gold-dark) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 12px rgba(245, 197, 24, 0.4);
+        }
+
+        /* Lifeline Tray */
+        .lifelines-tray {
+            display: flex;
+            gap: 12px;
+        }
+
+        .lifeline-btn {
+            position: relative;
+            width: 54px;
+            height: 40px;
+            background: linear-gradient(180deg, #1b387e 0%, #0b1a45 100%);
+            border: 2px solid var(--gold-primary);
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            font-weight: 800;
+            color: #ffffff;
+            box-shadow: 0 0 10px rgba(0, 210, 255, 0.3), inset 0 0 8px rgba(255, 255, 255, 0.2);
+            transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .lifeline-btn:hover:not(:disabled) {
+            transform: scale(1.12);
+            border-color: #fff;
+            box-shadow: 0 0 18px var(--cyan-glow);
+        }
+
+        .lifeline-btn:disabled {
+            filter: grayscale(100%) brightness(40%);
+            cursor: not-allowed;
+            border-color: #555;
+            box-shadow: none;
+        }
+
+        .lifeline-btn:disabled::after {
+            content: '✕';
+            position: absolute;
+            color: #ff334b;
+            font-size: 28px;
+            font-weight: 900;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            text-shadow: 0 0 6px #000;
+        }
+
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .btn-ladder-toggle, .btn-audio, .btn-quit {
+            background: rgba(13, 37, 92, 0.9);
+            border: 1px solid var(--gold-dark);
+            color: #ffdf73;
+            padding: 8px 14px;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-ladder-toggle:hover, .btn-audio:hover, .btn-quit:hover {
+            background: var(--blue-mid);
+            border-color: #fff;
+            color: #fff;
+            transform: translateY(-1px);
+        }
+
+        .btn-quit {
+            border-color: rgba(255, 65, 84, 0.7);
+            color: #ff9da7;
+        }
+        .btn-quit:hover {
+            background: rgba(255, 45, 65, 0.3);
+            border-color: #ff334b;
+        }
+
+        /* Main Workspace Arena */
+        .game-wrapper {
+            position: relative;
+            z-index: 5;
+            display: flex;
+            flex: 1;
+            max-width: 1540px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 15px 20px;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .stage-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            width: 100%;
+        }
+
+        /* Timer Indicator */
+        .timer-cluster {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+
+        .timer-circle {
+            width: 86px;
+            height: 86px;
+            border-radius: 50%;
+            background: radial-gradient(circle, #081846 40%, #03081e 95%);
+            border: 3px solid var(--gold-primary);
+            box-shadow: 0 0 25px rgba(245, 197, 24, 0.35), inset 0 0 15px rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .timer-val {
+            font-size: 38px;
+            font-weight: 900;
+            color: #fff;
+            text-shadow: 0 0 12px rgba(255, 255, 255, 0.8);
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .timer-val.warning {
+            color: #ff334b;
+            text-shadow: 0 0 15px #ff1744;
+            animation: pulseWarning 0.8s infinite;
+        }
+
+        @keyframes pulseWarning {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .timer-label {
+            margin-top: 5px;
+            font-size: 11px;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: #a0b6dd;
+            font-weight: 600;
+        }
+
+        /* Current Win Badge */
+        .current-prize-badge {
+            background: linear-gradient(90deg, transparent, rgba(13, 37, 92, 0.85), transparent);
+            padding: 6px 30px;
+            border-top: 1px solid rgba(245, 197, 24, 0.4);
+            border-bottom: 1px solid rgba(245, 197, 24, 0.4);
+            font-size: 15px;
+            color: #e2ecff;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+
+        .current-prize-badge span {
+            color: var(--gold-light);
+            font-weight: 800;
+            font-size: 17px;
+            text-shadow: 0 0 10px rgba(245, 197, 24, 0.6);
+        }
+
+        /* KBC Iconic Hexagonal Ribbon Elements */
+        .hex-ribbon-container {
+            width: 100%;
+            max-width: 980px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .question-box {
+            position: relative;
+            background: linear-gradient(180deg, #10265c 0%, #09173d 50%, #030a21 100%);
+            border: 2px solid var(--gold-primary);
+            box-shadow: 0 0 20px rgba(7, 25, 75, 0.8), inset 0 0 12px rgba(0, 210, 255, 0.2);
+            padding: 22px 40px;
+            min-height: 105px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            font-size: 20px;
+            font-weight: 700;
+            line-height: 1.45;
+            letter-spacing: 0.3px;
+            clip-path: polygon(25px 0%, calc(100% - 25px) 0%, 100% 50%, calc(100% - 25px) 100%, 25px 100%, 0% 50%);
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        /* Connecting Central Horizontal Accent Lines */
+        .question-box::before, .question-box::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            width: 25px;
+            height: 2px;
+            background: var(--gold-primary);
+            box-shadow: 0 0 8px var(--gold-light);
+        }
+        .question-box::before { left: -25px; }
+        .question-box::after { right: -25px; }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px 24px;
+            width: 100%;
+        }
+
+        .option-btn {
+            position: relative;
+            background: linear-gradient(180deg, #0d2258 0%, #07153b 55%, #020719 100%);
+            border: 2px solid #5778b8;
+            padding: 16px 22px;
+            color: #ffffff;
+            cursor: pointer;
+            font-size: 17px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            text-align: left;
+            clip-path: polygon(20px 0%, calc(100% - 20px) 0%, 100% 50%, calc(100% - 20px) 100%, 20px 100%, 0% 50%);
+            transition: transform 0.15s ease, background 0.2s, border-color 0.2s;
+            outline: none;
+        }
+
+        .option-btn:hover:not(:disabled):not(.locked):not(.correct):not(.wrong) {
+            border-color: var(--gold-primary);
+            box-shadow: 0 0 15px rgba(245, 197, 24, 0.5), inset 0 0 10px rgba(0, 210, 255, 0.3);
+            background: linear-gradient(180deg, #183e96 0%, #0c2363 55%, #040e2d 100%);
+            transform: scale(1.015);
+        }
+
+        .option-btn:disabled {
+            cursor: default;
+        }
+
+        .option-btn .opt-prefix {
+            color: var(--gold-primary);
+            font-weight: 800;
+            font-size: 19px;
+            margin-right: 14px;
+            text-shadow: 0 0 8px rgba(245, 197, 24, 0.6);
+            flex-shrink: 0;
+            width: 24px;
+        }
+
+        .option-btn .opt-text {
+            flex: 1;
+            word-break: break-word;
+        }
+
+        /* Selection States */
+        .option-btn.locked {
+            background: linear-gradient(180deg, #e69500 0%, #c47600 50%, #7d4300 100%) !important;
+            border-color: #ffe066 !important;
+            color: #fff !important;
+            box-shadow: 0 0 25px rgba(255, 183, 3, 0.8), inset 0 0 15px rgba(255, 255, 255, 0.4) !important;
+            animation: pulseLocked 1s infinite alternate;
+        }
+
+        @keyframes pulseLocked {
+            from { filter: brightness(1); }
+            to { filter: brightness(1.2); }
+        }
+
+        .option-btn.correct {
+            background: linear-gradient(180deg, #00b34d 0%, #008f3a 50%, #004d1f 100%) !important;
+            border-color: #80ffaa !important;
+            color: #ffffff !important;
+            box-shadow: 0 0 30px rgba(0, 230, 118, 0.9), inset 0 0 15px rgba(255, 255, 255, 0.4) !important;
+            animation: flashCorrect 0.4s ease 3;
+        }
+
+        @keyframes flashCorrect {
+            0%, 100% { filter: brightness(1.25); }
+            50% { filter: brightness(0.85); }
+        }
+
+        .option-btn.wrong {
+            background: linear-gradient(180deg, #d31b31 0%, #aa0f22 50%, #5a040f 100%) !important;
+            border-color: #ff99a8 !important;
+            box-shadow: 0 0 25px rgba(255, 51, 75, 0.8) !important;
+        }
+
+        .option-btn.eliminated {
+            opacity: 0.15;
+            pointer-events: none;
+            border-color: #444 !important;
+        }
+
+        /* Right Ladder Tree */
+        .ladder-panel {
+            width: 320px;
+            background: rgba(4, 11, 33, 0.92);
+            border: 2px solid var(--gold-dark);
+            border-radius: 12px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.7);
+            padding: 12px 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            position: relative;
+            backdrop-filter: blur(8px);
+        }
+
+        .ladder-header {
+            text-align: center;
+            font-family: 'Cinzel', serif;
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--gold-light);
+            border-bottom: 1px solid rgba(245, 197, 24, 0.3);
+            padding-bottom: 8px;
+            margin-bottom: 4px;
+            letter-spacing: 1px;
+        }
+
+        .ladder-list {
+            display: flex;
+            flex-direction: column-reverse;
+            gap: 3px;
+        }
+
+        .ladder-step {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 4px 14px;
+            border-radius: 4px;
+            font-size: 13px;
+            font-weight: 700;
+            color: #a4bfe8;
+            transition: all 0.25s ease;
+        }
+
+        .ladder-step .step-num {
+            width: 25px;
+            font-size: 11px;
+            opacity: 0.75;
+        }
+
+        .ladder-step .step-val {
+            letter-spacing: 0.5px;
+        }
+
+        /* Padav / Milestone Tiers */
+        .ladder-step.milestone {
+            color: #ffffff;
+            font-weight: 800;
+        }
+
+        .ladder-step.milestone .step-val {
+            text-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
+        }
+
+        .ladder-step.jackpot {
+            color: var(--gold-light);
+            font-weight: 900;
+            border: 1px dashed var(--gold-primary);
+            background: rgba(245, 197, 24, 0.1);
+        }
+
+        .ladder-step.current {
+            background: linear-gradient(90deg, #d4af37, #ffe066);
+            color: #030a21 !important;
+            font-weight: 900;
+            box-shadow: 0 0 15px rgba(245, 197, 24, 0.7);
+            transform: scale(1.03);
+        }
+
+        .ladder-step.cleared {
+            color: var(--correct-green);
+        }
+
+        /* Bottom Control Deck */
+        .bottom-bar {
+            position: relative;
+            z-index: 10;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 10px 20px 14px;
+            background: rgba(2, 6, 18, 0.95);
+            border-top: 1px solid rgba(245, 197, 24, 0.3);
+        }
+
+        .host-dialogue {
+            font-style: italic;
+            color: #b7ccf2;
+            font-size: 14px;
+            text-align: center;
+            max-width: 800px;
+            min-height: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .host-dialogue strong {
+            color: var(--gold-light);
+            font-style: normal;
+        }
+
+        /* Interactive Modals */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(1, 4, 15, 0.88);
+            backdrop-filter: blur(10px);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-card {
+            background: radial-gradient(circle at 50% 20%, #152f6c 0%, #081438 80%, #030718 100%);
+            border: 3px solid var(--gold-primary);
+            border-radius: 18px;
+            box-shadow: 0 0 40px rgba(0, 210, 255, 0.4), inset 0 0 25px rgba(0, 0, 0, 0.8);
+            width: 100%;
+            max-width: 580px;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+            transform: scale(0.9);
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .modal-overlay.active .modal-card {
+            transform: scale(1);
+        }
+
+        .modal-title {
+            font-family: 'Cinzel', serif;
+            font-size: 26px;
+            color: var(--gold-light);
+            margin-bottom: 16px;
+            text-shadow: 0 0 15px rgba(245, 197, 24, 0.5);
+        }
+
+        .modal-desc {
+            font-size: 15px;
+            line-height: 1.6;
+            color: #d1e0ff;
+            margin-bottom: 25px;
+        }
+
+        .primary-action-btn {
+            background: linear-gradient(180deg, #ffd700 0%, #e6a100 100%);
+            border: 2px solid #fff;
+            color: #050e24;
+            padding: 12px 36px;
+            font-size: 16px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            border-radius: 30px;
+            cursor: pointer;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.6);
+            transition: all 0.2s ease;
+            display: inline-block;
+        }
+
+        .primary-action-btn:hover {
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.9);
+            background: #fff;
+            color: #000;
+        }
+
+        /* Audience Poll Bars */
+        .poll-chart {
+            display: flex;
+            justify-content: space-around;
+            align-items: flex-end;
+            height: 190px;
+            margin: 20px 0 30px;
+            padding: 0 20px;
+            border-bottom: 2px solid var(--gold-dark);
+        }
+
+        .poll-col {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 50px;
+            height: 100%;
+            justify-content: flex-end;
+        }
+
+        .poll-pct {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--gold-light);
+            margin-bottom: 6px;
+        }
+
+        .poll-bar {
+            width: 38px;
+            background: linear-gradient(180deg, var(--cyan-glow) 0%, #0d388f 100%);
+            border: 1px solid #fff;
+            border-radius: 4px 4px 0 0;
+            transition: height 1s cubic-bezier(0.22, 1, 0.36, 1);
+            min-height: 4px;
+        }
+
+        .poll-opt-lbl {
+            margin-top: 8px;
+            font-weight: 800;
+            color: #fff;
+        }
+
+        /* Cheque Presentation (Game End / Win) */
+        .cheque-card {
+            background: #fdfbf7;
+            color: #1a2238;
+            border: 4px double #b8860b;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+            margin: 20px 0;
+            text-align: left;
+            position: relative;
+            font-family: 'Cinzel', serif;
+        }
+
+        .cheque-title {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            font-weight: 700;
+            border-bottom: 1px solid #cca028;
+            padding-bottom: 6px;
+            color: #7d5b00;
+        }
+
+        .cheque-payee {
+            margin-top: 15px;
+            font-size: 14px;
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+        }
+
+        .cheque-payee span {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 800;
+            font-size: 17px;
+            color: #0b1a45;
+            border-bottom: 1px dashed #777;
+            flex: 1;
+            padding-left: 8px;
+        }
+
+        .cheque-amount-box {
+            margin-top: 15px;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+        }
+
+        .cheque-amount-val {
+            border: 2px solid #b8860b;
+            background: #fff8e1;
+            padding: 6px 18px;
+            font-size: 24px;
+            font-weight: 900;
+            color: #0d255c;
+            letter-spacing: 1px;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        /* Particle Canvas for Win Celebration */
+        #confettiCanvas {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 200;
+        }
+
+        /* Responsive Breakpoints */
+        @media (max-width: 1024px) {
+            .ladder-panel {
+                position: fixed;
+                right: -340px;
+                top: 70px;
+                bottom: 60px;
+                height: calc(100vh - 130px);
+                z-index: 50;
+                transition: right 0.35s ease;
+                overflow-y: auto;
+            }
+            .ladder-panel.open {
+                right: 15px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            header {
+                padding: 10px 14px;
+            }
+            .game-title {
+                display: none;
+            }
+            .lifeline-btn {
+                width: 44px;
+                height: 36px;
+                font-size: 11px;
+            }
+            .options-grid {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+            .question-box {
+                font-size: 16px;
+                padding: 18px 25px;
+                min-height: 90px;
+            }
+            .option-btn {
+                font-size: 15px;
+                padding: 12px 18px;
+            }
+            .timer-circle {
+                width: 68px;
+                height: 68px;
+            }
+            .timer-val {
+                font-size: 28px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="stage-glow"></div>
+    <canvas id="confettiCanvas"></canvas>
+
+    <!-- Header Navigation -->
+    <header>
+        <div class="logo-container" id="logoResetBtn" title="Kaun Banega Crorepati">
+            <div class="chakra-icon"></div>
+            <div class="game-title">KAUN BANEGA CROREPATI</div>
+        </div>
+
+        <!-- 4 Classic Lifelines -->
+        <div class="lifelines-tray">
+            <button class="lifeline-btn" id="life5050" title="50:50 Lifeline">50:50</button>
+            <button class="lifeline-btn" id="lifePoll" title="Audience Poll">📊</button>
+            <button class="lifeline-btn" id="lifePhone" title="Phone A Friend">📞</button>
+            <button class="lifeline-btn" id="lifeFlip" title="Flip the Question">🔄</button>
+        </div>
+
+        <div class="header-controls">
+            <button class="btn-audio" id="audioToggleBtn">🔊 SOUND ON</button>
+            <button class="btn-quit" id="quitGameBtn">QUIT</button>
+            <button class="btn-ladder-toggle" id="ladderToggleBtn">🏆 LADDER</button>
+        </div>
+    </header>
+
+    <!-- Main Game Area -->
+    <div class="game-wrapper">
+        <main class="stage-area">
+            
+            <!-- Timer Display -->
+            <div class="timer-cluster">
+                <div class="timer-circle">
+                    <div class="timer-val" id="timerValue">45</div>
+                </div>
+                <div class="timer-label" id="timerStatusLabel">TICK TICK</div>
+            </div>
+
+            <!-- Current Level Prize -->
+            <div class="current-prize-badge">
+                Playing for: <span id="currentLevelTarget">₹ 1,000</span>
+            </div>
+
+            <!-- Question and Options Container -->
+            <div class="hex-ribbon-container">
+                <div class="question-box" id="questionText">
+                    Welcome to Kaun Banega Crorepati! Take your seat on the iconic Hot Seat.
+                </div>
+
+                <div class="options-grid">
+                    <button class="option-btn" id="optA" data-opt="0">
+                        <span class="opt-prefix">A:</span>
+                        <span class="opt-text" id="textA">Option A</span>
+                    </button>
+                    <button class="option-btn" id="optB" data-opt="1">
+                        <span class="opt-prefix">B:</span>
+                        <span class="opt-text" id="textB">Option B</span>
+                    </button>
+                    <button class="option-btn" id="optC" data-opt="2">
+                        <span class="opt-prefix">C:</span>
+                        <span class="opt-text" id="textC">Option C</span>
+                    </button>
+                    <button class="option-btn" id="optD" data-opt="3">
+                        <span class="opt-prefix">D:</span>
+                        <span class="opt-text" id="textD">Option D</span>
+                    </button>
+                </div>
+            </div>
+
+        </main>
+
+        <!-- Prize Ladder -->
+        <aside class="ladder-panel" id="ladderDrawer">
+            <div class="ladder-header">MONEY TREE (DHANRASHI)</div>
+            <div class="ladder-list" id="ladderList">
+                <!-- Dynamically populated 16 tiers -->
+            </div>
+        </aside>
+    </div>
+
+    <!-- Bottom Host Dialogue Ribbon -->
+    <footer class="bottom-bar">
+        <div class="host-dialogue" id="hostDialogue">
+            <strong>Computer Ji:</strong> Namaskar! Click an option to lock your answer, or select a lifeline when in doubt.
+        </div>
+    </footer>
+
+    <!-- Universal Game Modal (Lifelines, Game Over, Cheque Presentation) -->
+    <div class="modal-overlay" id="gameModal">
+        <div class="modal-card" id="modalCard">
+            <h2 class="modal-title" id="modalTitle">KBC Hot Seat</h2>
+            <div id="modalBody"></div>
+            <div style="margin-top: 20px;">
+                <button class="primary-action-btn" id="modalConfirmBtn">Proceed</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /* =========================================================
+           1. COMPREHENSIVE AUDIO SYNTHESIS ENGINE (WEB AUDIO API)
+           Faithfully mimics KBC suspense drones, heartbeats, bells & fanfares.
+           ========================================================= */
+        class KbcAudioSynthesizer {
+            constructor() {
+                this.ctx = null;
+                this.isMuted = false;
+                this.droneGain = null;
+                this.droneOsc = null;
+            }
+
+            init() {
+                if (!this.ctx) {
+                    const AudioContext = window.AudioContext || window.webkitAudioContext;
+                    this.ctx = new AudioContext();
+                }
+                if (this.ctx.state === 'suspended') {
+                    this.ctx.resume();
+                }
+            }
+
+            // Ticking sound for Clock
+            playTick(isUrgent = false) {
+                if (this.isMuted || !this.ctx) return;
+                const now = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(isUrgent ? 950 : 600, now);
+                osc.frequency.exponentialRampToValueAtTime(150, now + 0.06);
+
+                gain.gain.setValueAtTime(0.18, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+
+                osc.start(now);
+                osc.stop(now + 0.06);
+            }
+
+            // Lock suspense tone (Computer ji lock kijiye)
+            playLockSound() {
+                if (this.isMuted || !this.ctx) return;
+                const now = this.ctx.currentTime;
+                
+                // Deep low brass impact + shimmer
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(120, now);
+                osc.frequency.linearRampToValueAtTime(95, now + 0.5);
+
+                const filter = this.ctx.createBiquadFilter();
+                filter.type = 'lowpass';
+                filter.frequency.setValueAtTime(600, now);
+
+                gain.gain.setValueAtTime(0.35, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.9);
+
+                osc.connect(filter);
+                filter.connect(gain);
+                gain.connect(this.ctx.destination);
+
+                osc.start(now);
+                osc.stop(now + 0.95);
+            }
+
+            // Correct Answer Chime & Fanfare
+            playCorrect() {
+                if (this.isMuted || !this.ctx) return;
+                const notes = [261.63, 329.63, 392.00, 523.25, 659.25]; // C Major arpeggio
+                notes.forEach((freq, idx) => {
+                    const now = this.ctx.currentTime + (idx * 0.09);
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(freq, now);
+
+                    gain.gain.setValueAtTime(0.25, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+
+                    osc.start(now);
+                    osc.stop(now + 0.45);
+                });
+            }
+
+            // Wrong Answer Dramatic Minor Drop
+            playWrong() {
+                if (this.isMuted || !this.ctx) return;
+                const chords = [311.13, 293.66, 233.08, 146.83]; // Dramatic dark descent
+                chords.forEach((freq, idx) => {
+                    const now = this.ctx.currentTime + (idx * 0.14);
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(freq, now);
+
+                    const filter = this.ctx.createBiquadFilter();
+                    filter.type = 'lowpass';
+                    filter.frequency.setValueAtTime(450, now);
+
+                    gain.gain.setValueAtTime(0.3, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
+
+                    osc.connect(filter);
+                    filter.connect(gain);
+                    gain.connect(this.ctx.destination);
+
+                    osc.start(now);
+                    osc.stop(now + 0.55);
+                });
+            }
+
+            // Lifeline sound
+            playLifeline() {
+                if (this.isMuted || !this.ctx) return;
+                const now = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(520, now);
+                osc.frequency.exponentialRampToValueAtTime(1040, now + 0.35);
+
+                gain.gain.setValueAtTime(0.25, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.38);
+
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+
+                osc.start(now);
+                osc.stop(now + 0.4);
+            }
+
+            // Grand 7 Crore Jackpot Stinger
+            playJackpot() {
+                if (this.isMuted || !this.ctx) return;
+                const chordNotes = [261.63, 329.63, 392.00, 523.25, 659.25, 783.99, 1046.50];
+                chordNotes.forEach((freq, index) => {
+                    const now = this.ctx.currentTime + (index * 0.12);
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(freq, now);
+
+                    gain.gain.setValueAtTime(0.35, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 1.2);
+
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+
+                    osc.start(now);
+                    osc.stop(now + 1.3);
+                });
+            }
+        }
+
+        const audio = new KbcAudioSynthesizer();
+
+        /* =========================================================
+           2. PRIZE LADDER STRUCTURE & MILESTONES (16 TIERS)
+           ========================================================= */
+        const LADDER = [
+            { level: 1,  prize: "₹ 1,000",      value: 1000,      time: 45, isSafe: false },
+            { level: 2,  prize: "₹ 2,000",      value: 2000,      time: 45, isSafe: false },
+            { level: 3,  prize: "₹ 3,000",      value: 3000,      time: 45, isSafe: false },
+            { level: 4,  prize: "₹ 5,000",      value: 5000,      time: 45, isSafe: false },
+            { level: 5,  prize: "₹ 10,000",     value: 10000,     time: 45, isSafe: true  }, // Padav 1
+            { level: 6,  prize: "₹ 20,000",     value: 20000,     time: 60, isSafe: false },
+            { level: 7,  prize: "₹ 40,000",     value: 40000,     time: 60, isSafe: false },
+            { level: 8,  prize: "₹ 80,000",     value: 80000,     time: 60, isSafe: false },
+            { level: 9,  prize: "₹ 1,60,000",   value: 160000,    time: 60, isSafe: false },
+            { level: 10, prize: "₹ 3,20,000",   value: 320000,    time: 60, isSafe: true  }, // Padav 2
+            { level: 11, prize: "₹ 6,40,000",   value: 640000,    time: 0,  isSafe: false }, // No timer zone starts
+            { level: 12, prize: "₹ 12,50,000",  value: 1250000,   time: 0,  isSafe: false },
+            { level: 13, prize: "₹ 25,00,000",  value: 2500000,   time: 0,  isSafe: false },
+            { level: 14, prize: "₹ 50,00,000",  value: 5000000,   time: 0,  isSafe: false },
+            { level: 15, prize: "₹ 1,00,00,000", value: 10000000,  time: 0,  isSafe: false }, // 1 CRORE!
+            { level: 16, prize: "₹ 7,00,00,000", value: 70000000,  time: 0,  isSafe: true, isJackpot: true } // 7 CRORE!
+        ];
+
+        /* =========================================================
+           3. AUTHENTIC KBC QUESTION BANK (TIERED DIFFICULTY)
+           ========================================================= */
+        const QUESTION_DATABASE = {
+            tier1: [ // Levels 1 - 5 (Foundation / Culture / Easy)
+                {
+                    q: "In Hindu tradition, Lord Ganesha is known by which of these names meaning 'Remover of Obstacles'?",
+                    options: ["Vighnaharta", "Gangadhar", "Trinetra", "Murari"],
+                    ans: 0,
+                    topic: "Mythology"
+                },
+                {
+                    q: "Which popular Indian street food literally translates to 'water bread' or 'round filled with spiced water'?",
+                    options: ["Vada Pav", "Pav Bhaji", "Pani Puri", "Kachori"],
+                    ans: 2,
+                    topic: "Food"
+                },
+                {
+                    q: "In the game of Cricket, how many fielders are allowed outside the 30-yard circle during mandatory Powerplay?",
+                    options: ["Two", "Three", "Four", "Five"],
+                    ans: 0,
+                    topic: "Sports"
+                },
+                {
+                    q: "Which planet in our solar system is prominently known as the 'Red Planet'?",
+                    options: ["Venus", "Mars", "Jupiter", "Saturn"],
+                    ans: 1,
+                    topic: "Science"
+                },
+                {
+                    q: "Complete the iconic Sholay dialogue: 'Kitne aadmi the...?'",
+                    options: ["Kaalia", "Sambha", "Gabbar", "Thakur"],
+                    ans: 1,
+                    topic: "Cinema"
+                },
+                {
+                    q: "What is the national aquatic animal of the Republic of India?",
+                    options: ["Gharial", "Ganges River Dolphin", "Olive Ridley Turtle", "Blue Whale"],
+                    ans: 1,
+                    topic: "National Symbols"
+                }
+            ],
+            tier2: [ // Levels 6 - 10 (Moderate / History / Geography)
+                {
+                    q: "Which Indian scientist won the Nobel Prize in Physics in 1930 for the discovery of scattering of light?",
+                    options: ["Homi J. Bhabha", "Jagadish Chandra Bose", "C. V. Raman", "Satyendra Nath Bose"],
+                    ans: 2,
+                    topic: "Science"
+                },
+                {
+                    q: "In which year did the historic 'Dandi March' led by Mahatma Gandhi take place?",
+                    options: ["1920", "1930", "1942", "1919"],
+                    ans: 1,
+                    topic: "Freedom Struggle"
+                },
+                {
+                    q: "Which state in India is the largest producer of natural rubber in the country?",
+                    options: ["Assam", "Karnataka", "Kerala", "Tamil Nadu"],
+                    ans: 2,
+                    topic: "Geography"
+                },
+                {
+                    q: "Who among these historical figures composed the Sanskrit epic 'Ramayana'?",
+                    options: ["Maharishi Valmiki", "Ved Vyasa", "Kalidasa", "Tulsidas"],
+                    ans: 0,
+                    topic: "Literature"
+                },
+                {
+                    q: "Which of the following mountain passes connects the Kashmir Valley with Ladakh?",
+                    options: ["Rohtang Pass", "Nathu La", "Zoji La", "Shipki La"],
+                    ans: 2,
+                    topic: "Geography"
+                },
+                {
+                    q: "Which fort served as the capital of the Maratha Empire during Chhatrapati Shivaji Maharaj's coronation?",
+                    options: ["Sinhagad", "Raigad", "Pratapgad", "Shivneri"],
+                    ans: 1,
+                    topic: "History"
+                }
+            ],
+            tier3: [ // Levels 11 - 14 (Hard / Intellect / Deep Trivia)
+                {
+                    q: "Who was the first Chief Election Commissioner of Independent India?",
+                    options: ["Sukumar Sen", "K.V.K. Sundaram", "T.N. Seshan", "Nagendra Singh"],
+                    ans: 0,
+                    topic: "Polity"
+                },
+                {
+                    q: "Which element on the periodic table was originally discovered by Pierre and Marie Curie in 1898 and named after Marie's native land?",
+                    options: ["Radium", "Polonium", "Curium", "Francium"],
+                    ans: 1,
+                    topic: "Chemistry"
+                },
+                {
+                    q: "In the human eye, what is the clear front surface of the eye that covers the iris and pupil called?",
+                    options: ["Retina", "Sclera", "Cornea", "Ciliary Body"],
+                    ans: 2,
+                    topic: "Biology"
+                },
+                {
+                    q: "Which Indian classical dance form was historically performed by male temple dancers known as 'Gotipuas'?",
+                    options: ["Kathakali", "Odissi", "Manipuri", "Sattriya"],
+                    ans: 1,
+                    topic: "Arts & Culture"
+                },
+                {
+                    q: "Who is the only person to have won both an Oscar for acting and a Nobel Prize in Literature?",
+                    options: ["George Bernard Shaw", "Bob Dylan", "Neither (Trick Question)", "Peter Ustinov"],
+                    ans: 2,
+                    topic: "World Trivia"
+                }
+            ],
+            tier4: [ // Levels 15 & 16 (Crorepati & 7 Crore Master Questions)
+                {
+                    q: "Which spacecraft made humanity's first soft landing on the far side of the Moon in January 2019?",
+                    options: ["Chang'e 4", "Chandrayaan-2", "Apollo 17", "Luna 24"],
+                    ans: 0,
+                    topic: "Space Exploration"
+                },
+                {
+                    q: "In 1897, which British doctor discovered the malaria parasite in the stomach tissue of an Anopheles mosquito while working in Secunderabad?",
+                    options: ["Ronald Ross", "Alexander Fleming", "Edward Jenner", "Robert Koch"],
+                    ans: 0,
+                    topic: "Medical History"
+                },
+                {
+                    q: "According to the Mahabharata, who was the guru that taught archery to both Devavrata (Bhishma) and Karna?",
+                    options: ["Dronacharya", "Parashurama", "Kripacharya", "Brihaspati"],
+                    ans: 1,
+                    topic: "Epics"
+                },
+                {
+                    q: "Which treaty, signed in 1765, granted the East India Company the Diwani (right to collect taxes) over Bengal, Bihar, and Odisha?",
+                    options: ["Treaty of Allahabad", "Treaty of Madras", "Treaty of Salbai", "Treaty of Purandar"],
+                    ans: 0,
+                    topic: "Modern History"
+                }
+            ]
+        };
+
+        // Extra reserve questions for Flip Lifeline
+        const BACKUP_QUESTIONS = [
+            {
+                q: "What is the primary currency of Japan?",
+                options: ["Won", "Yen", "Renminbi", "Baht"],
+                ans: 1
+            },
+            {
+                q: "Which architectural marvel was built by Mughal Emperor Shah Jahan in memory of his beloved wife?",
+                options: ["Humayun's Tomb", "Qutub Minar", "Taj Mahal", "Red Fort"],
+                ans: 2
+            },
+            {
+                q: "What does the abbreviation 'ISRO' stand for?",
+                options: ["Indian Solar Research Organisation", "Indian Space Research Organisation", "International Satellite Research Office", "Indian Scientific Rocket Operations"],
+                ans: 1
+            }
+        ];
+
+        /* =========================================================
+           4. GAME STATE CONTROLLER
+           ========================================================= */
+        class KbcGameEngine {
+            constructor() {
+                this.currentLevel = 0; // 0 to 15 (representing 1 to 16)
+                this.currentQuestion = null;
+                this.timerInterval = null;
+                this.timeRemaining = 45;
+                this.isAnsweringLocked = false;
+                this.lifelinesState = {
+                    fiftyFifty: true,
+                    audiencePoll: true,
+                    phoneFriend: true,
+                    flipQuestion: true
+                };
+
+                this.lastGuaranteedWin = 0;
+                this.candidateName = "Hot Seat Champion";
+
+                // DOM Bindings
+                this.questionEl = document.getElementById('questionText');
+                this.optBtns = [
+                    document.getElementById('optA'),
+                    document.getElementById('optB'),
+                    document.getElementById('optC'),
+                    document.getElementById('optD')
+                ];
+                this.optTexts = [
+                    document.getElementById('textA'),
+                    document.getElementById('textB'),
+                    document.getElementById('textC'),
+                    document.getElementById('textD')
+                ];
+                this.timerValEl = document.getElementById('timerValue');
+                this.timerLabelEl = document.getElementById('timerStatusLabel');
+                this.currentPrizeBadge = document.getElementById('currentLevelTarget');
+                this.ladderContainer = document.getElementById('ladderList');
+                this.ladderDrawer = document.getElementById('ladderDrawer');
+                this.hostDialogue = document.getElementById('hostDialogue');
+
+                // Modal Bindings
+                this.modalOverlay = document.getElementById('gameModal');
+                this.modalTitle = document.getElementById('modalTitle');
+                this.modalBody = document.getElementById('modalBody');
+                this.modalConfirmBtn = document.getElementById('modalConfirmBtn');
+
+                // Lifeline buttons
+                this.btn5050 = document.getElementById('life5050');
+                this.btnPoll = document.getElementById('lifePoll');
+                this.btnPhone = document.getElementById('lifePhone');
+                this.btnFlip = document.getElementById('lifeFlip');
+
+                this.initUI();
+                this.attachEventListeners();
+                this.startNewGame();
+            }
+
+            initUI() {
+                // Populate ladder list
+                this.ladderContainer.innerHTML = '';
+                LADDER.forEach(step => {
+                    const row = document.createElement('div');
+                    row.className = `ladder-step ${step.isSafe ? 'milestone' : ''} ${step.isJackpot ? 'jackpot' : ''}`;
+                    row.id = `ladder-step-${step.level}`;
+                    row.innerHTML = `
+                        <span class="step-num">${step.level}</span>
+                        <span class="step-val">${step.prize}</span>
+                    `;
+                    this.ladderContainer.appendChild(row);
+                });
+            }
+
+            attachEventListeners() {
+                // User interaction triggers AudioContext activation
+                const activateAudio = () => audio.init();
+                window.addEventListener('click', activateAudio, { once: true });
+                window.addEventListener('keydown', activateAudio, { once: true });
+
+                // Option clicks
+                this.optBtns.forEach((btn, index) => {
+                    btn.addEventListener('click', () => this.handleOptionSelection(index));
+                });
+
+                // Lifeline button listeners
+                this.btn5050.addEventListener('click', () => this.useFiftyFifty());
+                this.btnPoll.addEventListener('click', () => this.useAudiencePoll());
+                this.btnPhone.addEventListener('click', () => this.usePhoneAFriend());
+                this.btnFlip.addEventListener('click', () => this.useFlipQuestion());
+
+                // Ladder Drawer Mobile Toggle
+                document.getElementById('ladderToggleBtn').addEventListener('click', () => {
+                    this.ladderDrawer.classList.toggle('open');
+                });
+
+                // Sound Toggle
+                const audioBtn = document.getElementById('audioToggleBtn');
+                audioBtn.addEventListener('click', () => {
+                    audio.isMuted = !audio.isMuted;
+                    audioBtn.textContent = audio.isMuted ? '🔇 SOUND OFF' : '🔊 SOUND ON';
+                });
+
+                // Quit Game button
+                document.getElementById('quitGameBtn').addEventListener('click', () => this.confirmQuit());
+
+                // Logo resets / restart
+                document.getElementById('logoResetBtn').addEventListener('click', () => {
+                    if (confirm("Would you like to restart your journey on the Hot Seat?")) {
+                        this.startNewGame();
+                    }
+                });
+            }
+
+            startNewGame() {
+                this.currentLevel = 0;
+                this.lastGuaranteedWin = 0;
+                this.isAnsweringLocked = false;
+                this.lifelinesState = {
+                    fiftyFifty: true,
+                    audiencePoll: true,
+                    phoneFriend: true,
+                    flipQuestion: true
+                };
+
+                // Restore lifeline buttons
+                [this.btn5050, this.btnPoll, this.btnPhone, this.btnFlip].forEach(b => b.disabled = false);
+
+                this.updateLadderHighlight();
+                this.loadQuestionForCurrentLevel();
+            }
+
+            getQuestionForTier(level) {
+                let pool = [];
+                if (level < 5) pool = QUESTION_DATABASE.tier1;
+                else if (level < 10) pool = QUESTION_DATABASE.tier2;
+                else if (level < 14) pool = QUESTION_DATABASE.tier3;
+                else pool = QUESTION_DATABASE.tier4;
+
+                const randomIdx = Math.floor(Math.random() * pool.length);
+                return pool[randomIdx];
+            }
+
+            loadQuestionForCurrentLevel(questionOverride = null) {
+                this.clearIntervalTimer();
+                this.resetOptionStyles();
+
+                const tierInfo = LADDER[this.currentLevel];
+                this.currentPrizeBadge.textContent = tierInfo.prize;
+
+                this.currentQuestion = questionOverride || this.getQuestionForTier(this.currentLevel);
+
+                // Render text
+                this.questionEl.textContent = `Q${tierInfo.level}: ${this.currentQuestion.q}`;
+                this.currentQuestion.options.forEach((optText, i) => {
+                    this.optTexts[i].textContent = optText;
+                });
+
+                this.updateLadderHighlight();
+                this.setDialogue(`Prashna number ${tierInfo.level} ke liye ₹ ${tierInfo.prize}. Take your time and choose carefully.`);
+
+                // Start clock timer
+                if (tierInfo.time > 0) {
+                    this.timeRemaining = tierInfo.time;
+                    this.timerValEl.textContent = this.timeRemaining;
+                    this.timerLabelEl.textContent = "CLOCK TICKING";
+                    this.timerValEl.classList.remove('warning');
+                    this.startClock();
+                } else {
+                    this.timerValEl.textContent = "∞";
+                    this.timerLabelEl.textContent = "NO TIME LIMIT";
+                    this.timerValEl.classList.remove('warning');
+                }
+
+                this.isAnsweringLocked = false;
+            }
+
+            startClock() {
+                this.timerInterval = setInterval(() => {
+                    this.timeRemaining--;
+                    this.timerValEl.textContent = this.timeRemaining;
+
+                    if (this.timeRemaining <= 10) {
+                        this.timerValEl.classList.add('warning');
+                        audio.playTick(true);
+                    } else {
+                        audio.playTick(false);
+                    }
+
+                    if (this.timeRemaining <= 0) {
+                        this.clearIntervalTimer();
+                        this.timeOutGameOver();
+                    }
+                }, 1000);
+            }
+
+            clearIntervalTimer() {
+                if (this.timerInterval) {
+                    clearInterval(this.timerInterval);
+                    this.timerInterval = null;
+                }
+            }
+
+            resetOptionStyles() {
+                this.optBtns.forEach(btn => {
+                    btn.className = 'option-btn';
+                    btn.disabled = false;
+                });
+            }
+
+            updateLadderHighlight() {
+                document.querySelectorAll('.ladder-step').forEach(step => {
+                    step.classList.remove('current', 'cleared');
+                });
+
+                for (let i = 1; i <= this.currentLevel; i++) {
+                    const stepEl = document.getElementById(`ladder-step-${i}`);
+                    if (stepEl) stepEl.classList.add('cleared');
+                }
+
+                const currentStepEl = document.getElementById(`ladder-step-${this.currentLevel + 1}`);
+                if (currentStepEl) currentStepEl.classList.add('current');
+            }
+
+            setDialogue(text) {
+                this.hostDialogue.innerHTML = `<strong>Computer Ji:</strong> ${text}`;
+            }
+
+            /* -----------------------------------------------------
+               SELECTION & VERIFICATION LOGIC
+               ----------------------------------------------------- */
+            handleOptionSelection(selectedIndex) {
+                if (this.isAnsweringLocked) return;
+                this.isAnsweringLocked = true;
+                this.clearIntervalTimer();
+
+                const selectedBtn = this.optBtns[selectedIndex];
+                selectedBtn.classList.add('locked');
+                audio.playLockSound();
+
+                const letter = ['A', 'B', 'C', 'D'][selectedIndex];
+                this.setDialogue(`Aapne chuna hai option ${letter}. Computer ji, option ${letter} ko lock kiya jaye!`);
+
+                // Dramatic 2.2 second suspense delay
+                setTimeout(() => {
+                    this.verifyAnswer(selectedIndex);
+                }, 2200);
+            }
+
+            verifyAnswer(selectedIndex) {
+                const correctIndex = this.currentQuestion.ans;
+                const isCorrect = selectedIndex === correctIndex;
+
+                if (isCorrect) {
+                    // Correct!
+                    this.optBtns[selectedIndex].classList.remove('locked');
+                    this.optBtns[selectedIndex].classList.add('correct');
+                    audio.playCorrect();
+
+                    const earnedPrize = LADDER[this.currentLevel].prize;
+                    const tierInfo = LADDER[this.currentLevel];
+
+                    if (tierInfo.isSafe) {
+                        this.lastGuaranteedWin = tierInfo.value;
+                    }
+
+                    // Check for 7 CRORE jackpot victory
+                    if (this.currentLevel === 15) {
+                        this.triggerJackpotWin();
+                        return;
+                    }
+
+                    this.setDialogue(`Sahi Jawab! Bilkul sahi jawab! Aap jeet chuke hain ${earnedPrize}!`);
+
+                    // Advance to next question after small celebratory window
+                    setTimeout(() => {
+                        this.currentLevel++;
+                        this.loadQuestionForCurrentLevel();
+                    }, 2400);
+
+                } else {
+                    // Wrong!
+                    this.optBtns[selectedIndex].classList.remove('locked');
+                    this.optBtns[selectedIndex].classList.add('wrong');
+                    this.optBtns[correctIndex].classList.add('correct');
+                    audio.playWrong();
+
+                    this.setDialogue(`Afsos! Ye galat jawab hai. Sahi jawab tha Option ${['A','B','C','D'][correctIndex]}.`);
+
+                    setTimeout(() => {
+                        this.gameOverWrongAnswer();
+                    }, 2600);
+                }
+            }
+
+            timeOutGameOver() {
+                this.isAnsweringLocked = true;
+                audio.playWrong();
+                this.setDialogue(`Samay samapt! Ghadi ki tik-tik ruk chuki hai.`);
+                this.showModal({
+                    title: "SAMAY SAMAPT! (TIME OVER)",
+                    bodyText: `Your time ran out on the Hot Seat. According to the rules, your game ends here.`,
+                    finalPrize: this.getGuaranteedAmountString(),
+                    btnLabel: "Claim Cheque & Exit",
+                    onConfirm: () => this.startNewGame()
+                });
+            }
+
+            gameOverWrongAnswer() {
+                this.showModal({
+                    title: "KHEL SAMAPT (GAME OVER)",
+                    bodyText: `Afsos! Your answer was incorrect. But you played a courageous game on the Hot Seat!`,
+                    finalPrize: this.getGuaranteedAmountString(),
+                    btnLabel: "Collect Dhanrashi & Restart",
+                    onConfirm: () => this.startNewGame()
+                });
+            }
+
+            confirmQuit() {
+                if (this.isAnsweringLocked) return;
+                const currentPrize = this.currentLevel === 0 ? "₹ 0" : LADDER[this.currentLevel - 1].prize;
+                
+                const willQuit = confirm(`Do you wish to leave the game with your accumulated dhanrashi of ${currentPrize}?`);
+                if (willQuit) {
+                    this.clearIntervalTimer();
+                    this.showModal({
+                        title: "AAPNE KHEL CHHODA (QUIT)",
+                        bodyText: `A wise decision! Taking home a confirmed fortune from the Hot Seat.`,
+                        finalPrize: currentPrize,
+                        btnLabel: "Accept Prize & Play Again",
+                        onConfirm: () => this.startNewGame()
+                    });
+                }
+            }
+
+            getGuaranteedAmountString() {
+                if (this.lastGuaranteedWin === 0) return "₹ 0";
+                return `₹ ${this.lastGuaranteedWin.toLocaleString('en-IN')}`;
+            }
+
+            triggerJackpotWin() {
+                audio.playJackpot();
+                fireConfetti();
+                this.showModal({
+                    title: "🎉 7 CRORE! RECORD VICTORY! 🎉",
+                    bodyText: `ITTIHAAS RACH DIYA AAPNE! You answered all 16 questions correctly and conquered the summit of Kaun Banega Crorepati!`,
+                    finalPrize: "₹ 7,00,00,000",
+                    btnLabel: "Hold Up The 7 Crore Trophy!",
+                    onConfirm: () => this.startNewGame()
+                });
+            }
+
+            /* -----------------------------------------------------
+               LIFELINES MECHANICS
+               ----------------------------------------------------- */
+            useFiftyFifty() {
+                if (!this.lifelinesState.fiftyFifty || this.isAnsweringLocked) return;
+                this.lifelinesState.fiftyFifty = false;
+                this.btn5050.disabled = true;
+                audio.playLifeline();
+
+                const correctIdx = this.currentQuestion.ans;
+                const wrongIndices = [0, 1, 2, 3].filter(i => i !== correctIdx);
+                // Shuffle and pick 2 to eliminate
+                const shuffled = wrongIndices.sort(() => 0.5 - Math.random());
+                const toEliminate = shuffled.slice(0, 2);
+
+                toEliminate.forEach(idx => {
+                    this.optBtns[idx].classList.add('eliminated');
+                    this.optBtns[idx].disabled = true;
+                });
+
+                this.setDialogue(`50:50 Lifeline activated! Computer ji has removed two incorrect options.`);
+            }
+
+            useAudiencePoll() {
+                if (!this.lifelinesState.audiencePoll || this.isAnsweringLocked) return;
+                this.lifelinesState.audiencePoll = false;
+                this.btnPoll.disabled = true;
+                audio.playLifeline();
+
+                const correctIdx = this.currentQuestion.ans;
+                // Generate weighted realistic poll distribution
+                let votes = [0, 0, 0, 0];
+                const highShare = Math.floor(Math.random() * 25) + 55; // 55% - 80%
+                let remaining = 100 - highShare;
+
+                votes[correctIdx] = highShare;
+                const otherIndices = [0, 1, 2, 3].filter(i => i !== correctIdx);
+                
+                const share1 = Math.floor(Math.random() * (remaining - 4));
+                const share2 = Math.floor(Math.random() * (remaining - share1 - 2));
+                const share3 = remaining - share1 - share2;
+
+                votes[otherIndices[0]] = Math.max(2, share1);
+                votes[otherIndices[1]] = Math.max(1, share2);
+                votes[otherIndices[2]] = Math.max(1, share3);
+
+                // Re-adjust total
+                const total = votes.reduce((a, b) => a + b, 0);
+                if (total !== 100) votes[correctIdx] += (100 - total);
+
+                const pollHtml = `
+                    <div style="font-size:14px; margin-bottom:12px; color:#d6e4ff;">Here are the live voting results from our studio audience:</div>
+                    <div class="poll-chart">
+                        <div class="poll-col">
+                            <span class="poll-pct">${votes[0]}%</span>
+                            <div class="poll-bar" style="height:${votes[0] * 1.5}px"></div>
+                            <span class="poll-opt-lbl">A</span>
+                        </div>
+                        <div class="poll-col">
+                            <span class="poll-pct">${votes[1]}%</span>
+                            <div class="poll-bar" style="height:${votes[1] * 1.5}px"></div>
+                            <span class="poll-opt-lbl">B</span>
+                        </div>
+                        <div class="poll-col">
+                            <span class="poll-pct">${votes[2]}%</span>
+                            <div class="poll-bar" style="height:${votes[2] * 1.5}px"></div>
+                            <span class="poll-opt-lbl">C</span>
+                        </div>
+                        <div class="poll-col">
+                            <span class="poll-pct">${votes[3]}%</span>
+                            <div class="poll-bar" style="height:${votes[3] * 1.5}px"></div>
+                            <span class="poll-opt-lbl">D</span>
+                        </div>
+                    </div>
+                `;
+
+                this.showModal({
+                    title: "AUDIENCE POLL RESULTS",
+                    customHtml: pollHtml,
+                    btnLabel: "Back to Question",
+                    onConfirm: () => {}
+                });
+
+                this.setDialogue(`Studio audience has given their verdict! The majority stands with Option ${['A','B','C','D'][correctIdx]}.`);
+            }
+
+            usePhoneAFriend() {
+                if (!this.lifelinesState.phoneFriend || this.isAnsweringLocked) return;
+                this.lifelinesState.phoneFriend = false;
+                this.btnPhone.disabled = true;
+                audio.playLifeline();
+
+                const friends = ["Dr. Shambhu Nath", "Prof. Sunita Sharma", "Ramesh Verma (IAS Aspirant)"];
+                const friend = friends[Math.floor(Math.random() * friends.length)];
+                const correctIdx = this.currentQuestion.ans;
+                const letter = ['A', 'B', 'C', 'D'][correctIdx];
+
+                const friendContent = `
+                    <div style="text-align:left; background:rgba(3,10,30,0.8); padding:16px; border-radius:8px; border-left:4px solid var(--gold-primary);">
+                        <p style="color:var(--gold-light); font-weight:700; margin-bottom:8px;">Connecting line to ${friend}...</p>
+                        <p style="font-size:14px; color:#e0edff; line-height:1.5;">
+                            <em>"${this.candidateName}, I am 95% confident! I recently read this in an encyclopedia. You should firmly lock <strong>Option ${letter} (${this.currentQuestion.options[correctIdx]})</strong>. All the best!"</em>
+                        </p>
+                    </div>
+                `;
+
+                this.showModal({
+                    title: "PHONE A FRIEND",
+                    customHtml: friendContent,
+                    btnLabel: "Thank You & Continue",
+                    onConfirm: () => {}
+                });
+
+                this.setDialogue(`Your friend ${friend} recommends Option ${letter}.`);
+            }
+
+            useFlipQuestion() {
+                if (!this.lifelinesState.flipQuestion || this.isAnsweringLocked) return;
+                this.lifelinesState.flipQuestion = false;
+                this.btnFlip.disabled = true;
+                audio.playLifeline();
+
+                const alternate = BACKUP_QUESTIONS.shift() || {
+                    q: "In which city is the famous Gateway of India situated?",
+                    options: ["New Delhi", "Kolkata", "Mumbai", "Chennai"],
+                    ans: 2
+                };
+
+                this.setDialogue(`Flip The Question used! Changing the question on Computer Ji's screen...`);
+                this.loadQuestionForCurrentLevel(alternate);
+            }
+
+            /* -----------------------------------------------------
+               UNIVERSAL DIALOG / MODAL
+               ----------------------------------------------------- */
+            showModal({ title, bodyText, finalPrize, customHtml, btnLabel, onConfirm }) {
+                this.modalTitle.textContent = title;
+                
+                let content = '';
+                if (bodyText) {
+                    content += `<p class="modal-desc">${bodyText}</p>`;
+                }
+                if (customHtml) {
+                    content += customHtml;
+                }
+                if (finalPrize) {
+                    content += `
+                        <div class="cheque-card">
+                            <div class="cheque-title">
+                                <span>RESERVE BANK OF HOT SEAT</span>
+                                <span>DATE: ${new Date().toLocaleDateString('en-GB')}</span>
+                            </div>
+                            <div class="cheque-payee">
+                                PAY TO THE ORDER OF: <span>${this.candidateName}</span>
+                            </div>
+                            <div class="cheque-amount-box">
+                                <div class="cheque-amount-val">${finalPrize}</div>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                this.modalBody.innerHTML = content;
+                this.modalConfirmBtn.textContent = btnLabel || "OK";
+
+                this.modalConfirmBtn.onclick = () => {
+                    this.modalOverlay.classList.remove('active');
+                    if (onConfirm) onConfirm();
+                };
+
+                this.modalOverlay.classList.add('active');
+            }
+        }
+
+        /* =========================================================
+           5. CONFETTI PARTICLE SYSTEM (FOR CROREPATI CELEBRATION)
+           ========================================================= */
+        const canvas = document.getElementById('confettiCanvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        let animationFrame = null;
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        function fireConfetti() {
+            particles = [];
+            const colors = ['#f5c518', '#00d2ff', '#ffffff', '#ff334b', '#00e676', '#e040fb'];
+            for (let i = 0; i < 220; i++) {
+                particles.push({
+                    x: canvas.width / 2,
+                    y: canvas.height * 0.4,
+                    vx: (Math.random() - 0.5) * 18,
+                    vy: (Math.random() - 0.7) * 22,
+                    size: Math.random() * 8 + 4,
+                    color: colors[Math.floor(Math.random() * colors.length)],
+                    rot: Math.random() * 360,
+                    rotSpeed: (Math.random() - 0.5) * 12,
+                    gravity: 0.35,
+                    life: 250
+                });
+            }
+
+            if (animationFrame) cancelAnimationFrame(animationFrame);
+            renderConfetti();
+        }
+
+        function renderConfetti() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            let active = false;
+
+            particles.forEach(p => {
+                p.x += p.vx;
+                p.y += p.vy;
+                p.vy += p.gravity;
+                p.rot += p.rotSpeed;
+                p.life--;
+
+                if (p.life > 0) {
+                    active = true;
+                    ctx.save();
+                    ctx.translate(p.x, p.y);
+                    ctx.rotate((p.rot * Math.PI) / 180);
+                    ctx.fillStyle = p.color;
+                    ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
+                    ctx.restore();
+                }
+            });
+
+            if (active) {
+                animationFrame = requestAnimationFrame(renderConfetti);
+            } else {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+            }
+        }
+
+        // Initialize Game Engine when DOM is fully loaded
+        window.addEventListener('DOMContentLoaded', () => {
+            window.kbcGame = new KbcGameEngine();
+        });
+    </script>
+</body>
+</html>
